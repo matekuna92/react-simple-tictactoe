@@ -3,27 +3,42 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 class Square extends React.Component {
-  constructor(props) {    // React components can have state by setting this.state in their constructors
-    super(props);
-    this.state = {        // Let’s store the current value of the Square in this.state
-      value: null
-    };
-  }
-
   render() {
     return (
       <button
           className="square"
-          onClick={() => this.setState({value: 'X'})}>
-          {this.state.value}
+          onClick={() => this.props.onClick()}>
+          {this.props.value}
       </button>
     );
   }
 }
 
 class Board extends React.Component {
+  // instead of storing state for each Square, we store the state of Board, which will pass states down to children
+  // https://reactjs.org/tutorial/tutorial.html#completing-the-game
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null)
+    };
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();   // https://reactjs.org/tutorial/tutorial.html#data-change-without-mutation
+    squares[i] = 'X';
+    this.setState({squares: squares});
+  }
+
   renderSquare(i) {
-    return <Square value={i}/>; // passing a prop called value
+// Since state is considered to be private to a component that defines it, we cannot update the Board’s state directly from Square
+// when a square is clicked. Instead, we’ll pass down a function from the Board to the Square, and we’ll have Square call that function
+// when a square is clicked
+
+// Now we’re passing down two props from Board to Square: value and onClick
+    return <Square
+      value={this.state.squares[i]}
+      onClick={() => this.handleClick(i)} />; // passing a prop called value
   }
 
   render() {
